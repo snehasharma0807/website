@@ -97,52 +97,28 @@ export default MemberPage;
 
 // necessary to statically render all paths
 export async function getStaticPaths() {
-  const {
-    pennWebsiteLayout: { membersCollection },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   {
     pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
       membersCollection {
-        items {
-          urlSlug
-        }
+        items { urlSlug }
+      }
+      alumniCollection {
+        items { urlSlug }
       }
     }
   }
   `);
 
-  const {
-    pennWebsiteLayout: { alumniCollection },
-  } = await fetchContent(`
-  {
-    pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
-      alumniCollection {
-        items {
-          urlSlug
-        }
-      }
-    }
-  }
-  `);
-  const memberPaths = membersCollection.items
+  const layout = data?.pennWebsiteLayout;
+  const memberPaths = (layout?.membersCollection?.items ?? [])
     .filter((x) => !!x.urlSlug)
-    .map(({ urlSlug }) => ({
-      params: {
-        memberSlug: urlSlug,
-      },
-    }));
-  const alumniPaths = alumniCollection.items
+    .map(({ urlSlug }) => ({ params: { memberSlug: urlSlug } }));
+  const alumniPaths = (layout?.alumniCollection?.items ?? [])
     .filter((x) => !!x.urlSlug)
-    .map(({ urlSlug }) => ({
-      params: {
-        memberSlug: urlSlug,
-      },
-    }));
-  const paths = memberPaths.concat(alumniPaths);
-  return {
-    paths,
-    fallback: false,
-  };
+    .map(({ urlSlug }) => ({ params: { memberSlug: urlSlug } }));
+
+  return { paths: memberPaths.concat(alumniPaths), fallback: false };
 }
 
 // necessary to statically render all paths

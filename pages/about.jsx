@@ -25,25 +25,18 @@ function AboutPage({ members, alumni, values, execBoard }) {
 export default AboutPage;
 
 export async function getStaticProps() {
-  const {
-    pennWebsiteLayout: {
-      chapterValuesCollection,
-      execBoardCollection,
-      membersCollection,
-      alumniCollection,
-    },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   fragment profile on PennMemberProfile{
     name
     title
     image {
       url
-    } 
+    }
     linkedIn
     classOf
     urlSlug
-  } 
-  
+  }
+
   {
     pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
       chapterValuesCollection {
@@ -76,12 +69,14 @@ export async function getStaticProps() {
     }
   }
   `);
+
+  const layout = data?.pennWebsiteLayout;
   return {
     props: {
-      values: chapterValuesCollection.items,
-      members: membersCollection.items,
-      alumni: alumniCollection.items,
-      execBoard: execBoardCollection.items,
+      values:   layout?.chapterValuesCollection?.items ?? [],
+      members:  layout?.membersCollection?.items ?? [],
+      alumni:   layout?.alumniCollection?.items ?? [],
+      execBoard: layout?.execBoardCollection?.items ?? [],
     },
   };
 }

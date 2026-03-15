@@ -42,9 +42,7 @@ function Projects({ projects }) {
 export default Projects;
 
 export async function getStaticProps() {
-  const {
-    pennWebsiteLayout: { projectsCollection },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   {
     pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
       projectsCollection {
@@ -67,7 +65,7 @@ export async function getStaticProps() {
 
   return {
     props: {
-      projects: projectsCollection.items.filter((x) => !!x),
+      projects: data?.pennWebsiteLayout?.projectsCollection?.items?.filter((x) => !!x) ?? [],
     },
   };
 }

@@ -119,9 +119,7 @@ export default ProjectPage;
 
 // necessary to statically render all paths
 export async function getStaticPaths() {
-  const {
-    pennWebsiteLayout: { projectsCollection },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   {
     pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
       projectsCollection {
@@ -133,18 +131,14 @@ export async function getStaticPaths() {
   }
   `);
 
-  const paths = projectsCollection.items
+  const items = data?.pennWebsiteLayout?.projectsCollection?.items ?? [];
+  const paths = items
     .filter((x) => !!x)
     .map(({ urlSlug }) => ({
-      params: {
-        projectSlug: urlSlug,
-      },
+      params: { projectSlug: urlSlug },
     }));
 
-  return {
-    paths,
-    fallback: false,
-  };
+  return { paths, fallback: false };
 }
 
 // necessary to statically render all paths

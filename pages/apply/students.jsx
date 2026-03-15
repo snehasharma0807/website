@@ -46,9 +46,7 @@ function Students({
 export default Students;
 
 export async function getStaticProps() {
-  const {
-    pennWebsiteLayout: { studentApplication },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   {
     pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
       studentApplication {
@@ -91,6 +89,6 @@ export async function getStaticProps() {
   `);
 
   return {
-    props: studentApplication,
+    props: data?.pennWebsiteLayout?.studentApplication ?? {},
   };
 }

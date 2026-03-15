@@ -32,10 +32,7 @@ function Home({ chapterLogos, previewProjects }) {
 export default Home;
 
 export async function getStaticProps() {
-  const {
-    chapterCollection,
-    pennWebsiteLayout: { projectsCollection },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   {
     chapterCollection {
       items {
@@ -65,17 +62,22 @@ export async function getStaticProps() {
     }
   }
   `);
+
+  const chapterCollection = data?.chapterCollection;
+  const projectsCollection = data?.pennWebsiteLayout?.projectsCollection;
+
   return {
     props: {
-      chapterLogos: chapterCollection.items.map(
-        ({ websiteLink, socialMediaLink, codeRepoLink, ...chapter }) => ({
-          ...chapter,
-          // not all chapters have a website,
-          // so we need to have some solid fallbacks
-          link: websiteLink ?? socialMediaLink ?? codeRepoLink ?? 'https://hack4impact.org',
-        }),
-      ),
-      previewProjects: projectsCollection.items,
+      chapterLogos:
+        chapterCollection?.items.map(
+          ({ websiteLink, socialMediaLink, codeRepoLink, ...chapter }) => ({
+            ...chapter,
+            // not all chapters have a website,
+            // so we need to have some solid fallbacks
+            link: websiteLink ?? socialMediaLink ?? codeRepoLink ?? 'https://hack4impact.org',
+          }),
+        ) ?? [],
+      previewProjects: projectsCollection?.items ?? [],
     },
   };
 }

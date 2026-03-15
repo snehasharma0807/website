@@ -44,9 +44,7 @@ function NonProfits({
 export default NonProfits;
 
 export async function getStaticProps() {
-  const {
-    pennWebsiteLayout: { nonprofitApplication },
-  } = await fetchContent(`
+  const data = await fetchContent(`
   {
     pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
       nonprofitApplication {
@@ -89,6 +87,6 @@ export async function getStaticProps() {
   `);
 
   return {
-    props: nonprofitApplication,
+    props: data?.pennWebsiteLayout?.nonprofitApplication ?? {},
   };
 }
