@@ -4,10 +4,9 @@
       "next/babel",
       {
         "styled-jsx": {
-          "plugins": ["styled-jsx-plugin-sass"]
+          "plugins": []
         }
       }
     ]
-  ],
-  "plugins": ["inline-react-svg"]
+  ]
 }

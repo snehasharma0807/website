@@ -3,14 +3,13 @@ import Banner from '../components/homepage/banner';
 import OurWorkSection from '../components/homepage/ourWork';
 import InvolveSection from '../components/involveSection';
 import PartnerSection from '../components/homepage/partnerSection';
-import OtherChapters from '../components/homepage/otherChapters';
 import { ToastContainer } from 'react-toastify';
 import Head from '../components/head';
-import fetchContent from '../utils/fetchContent';
 import Section from '../components/section';
 import { Container } from 'reactstrap';
+import { getActiveProjects, getSponsorsPublic } from '../lib/dataPublic';
 
-function Home({ chapterLogos, previewProjects }) {
+function Home({ previewProjects, sponsors }) {
   return (
     <>
       <Head title="Hack4Impact" />
@@ -23,61 +22,40 @@ function Home({ chapterLogos, previewProjects }) {
           <InvolveSection />
         </Container>
       </Section>
-      <PartnerSection />
-      <OtherChapters chapterLogos={chapterLogos} />
+      <PartnerSection sponsors={sponsors} />
     </>
   );
 }
 
 export default Home;
 
-export async function getStaticProps() {
-  const data = await fetchContent(`
-  {
-    chapterCollection {
-      items {
-        name
-        websiteLink
-        socialMediaLink
-        codeRepoLink
-        universityLogo {
-          url
-        }
-      }
-    }
-    pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
-      projectsCollection(limit: 3) {
-        items {
-          title
-          description {
-            json
-          }
-          thumbnail {
-            url
-            description
-          }
-          urlSlug
-        }
-      }
-    }
+export async function getServerSideProps() {
+  try {
+    const [projects, sponsors] = await Promise.all([
+      getActiveProjects(),
+      getSponsorsPublic(),
+    ]);
+
+    const previewProjects = projects.slice(0, 3).map((p) => ({
+      title: p.title ?? '',
+      description: { json: p.description ?? '' },
+      thumbnail: { url: p.image_url ?? '', description: p.title ?? '' },
+      urlSlug: p.id,
+    }));
+
+    return {
+      props: {
+        previewProjects,
+        sponsors: sponsors ?? [],
+      },
+    };
+  } catch (e) {
+    console.error('[index] getServerSideProps', e);
+    return {
+      props: {
+        previewProjects: [],
+        sponsors: [],
+      },
+    };
   }
-  `);
-
-  const chapterCollection = data?.chapterCollection;
-  const projectsCollection = data?.pennWebsiteLayout?.projectsCollection;
-
-  return {
-    props: {
-      chapterLogos:
-        chapterCollection?.items.map(
-          ({ websiteLink, socialMediaLink, codeRepoLink, ...chapter }) => ({
-            ...chapter,
-            // not all chapters have a website,
-            // so we need to have some solid fallbacks
-            link: websiteLink ?? socialMediaLink ?? codeRepoLink ?? 'https://hack4impact.org',
-          }),
-        ) ?? [],
-      previewProjects: projectsCollection?.items ?? [],
-    },
-  };
 }

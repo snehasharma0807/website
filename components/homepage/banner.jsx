@@ -57,29 +57,28 @@ const Banner = () => (
       </div>
     </Container>
     <style jsx>{`
-      $tablet-width: 800px;
-
       .bannerCont {
         padding: 120px 0;
         padding-top: calc(60px + var(--nav-height));
-
-        @media (max-width: $tablet-width) {
+      }
+      @media (max-width: 800px) {
+        .bannerCont {
           padding: 80px 0;
           padding-top: calc(40px + var(--nav-height));
         }
-
-        h1 {
-          font-size: 54px !important;
-          margin-bottom: 30px;
-
-          @media (max-width: 400px) {
-            font-size: 42px !important;
-          }
+      }
+      .bannerCont h1 {
+        font-size: 54px !important;
+        margin-bottom: 30px;
+      }
+      @media (max-width: 400px) {
+        .bannerCont h1 {
+          font-size: 42px !important;
         }
-        .sub-headline {
-          font-size: 18px;
-          margin-bottom: 40px;
-        }
+      }
+      .bannerCont .sub-headline {
+        font-size: 18px;
+        margin-bottom: 40px;
       }
       .banner-img {
         width: 100%;
@@ -89,12 +88,12 @@ const Banner = () => (
         height: 650px;
         padding-top: 150px;
         background-size: cover;
-
-        @media (max-width: $tablet-width) {
+      }
+      @media (max-width: 800px) {
+        .banner-section {
           background-size: contain;
         }
       }
-
       .cta-box {
         padding-top: 7px;
         align-content: left;

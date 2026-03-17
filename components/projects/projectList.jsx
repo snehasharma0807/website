@@ -5,12 +5,18 @@ import groupBy from '../../utils/groupBy';
 import groupByYearSort from '../../utils/projectYear';
 
 export default function ProjectList({ projects }) {
-  const projectsByCompletion = groupBy(projects, 'completedIn');
+  const list = Array.isArray(projects) ? projects : [];
+  const projectsByCompletion = groupBy(list, 'completedIn');
 
   return (
     <Section>
       <Container>
-        {Object.entries(projectsByCompletion)
+        {list.length === 0 ? (
+          <div className="text-center text-muted py-5">
+            <p>No projects to show yet. Check back soon.</p>
+          </div>
+        ) : (
+        Object.entries(projectsByCompletion)
           .sort(groupByYearSort)
           .map(([completedIn, projects]) => (
             <div key={completedIn}>
@@ -30,7 +36,8 @@ export default function ProjectList({ projects }) {
                 ))}
               </Row>
             </div>
-          ))}
+          ))
+        )}
       </Container>
     </Section>
   );

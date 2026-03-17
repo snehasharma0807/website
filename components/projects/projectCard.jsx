@@ -4,19 +4,21 @@ import ActionButton from '../actionButton';
 import ContentBlock from '../ContentBlock';
 
 function ProjectCard({ title, thumbnail, urlSlug, description }) {
+  const imgSrc = thumbnail?.url || '/images/logo.svg';
+  const imgAlt = thumbnail?.description || title || 'Project';
   return (
     <>
       <Card className="bg-light mb-3 project-card h-100" style={{ height: '100%' }}>
         <img
           className="card-img-top"
-          style={{ height: '200px' }}
-          src={thumbnail.url}
-          alt={thumbnail.description}
+          style={{ height: '200px', objectFit: 'cover' }}
+          src={imgSrc}
+          alt={imgAlt}
         />
         <CardBody>
           <h3 className="text-center">{title}</h3>
           <div className="text-center" style={{ maxHeight: '200px', overflow: 'auto' }}>
-            <ContentBlock content={description.json} />
+            <ContentBlock content={description?.json ?? description} />
           </div>
           <div className="text-center action-btn-box">
             <ActionButton white link={`/projects/${urlSlug}`}>

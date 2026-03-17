@@ -2,27 +2,44 @@ import React, { useCallback, useEffect, useState } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import AdminTable from '../../../components/admin/AdminTable';
 import TableSkeleton from '../../../components/admin/TableSkeleton';
-import ProjectForm from '../../../components/admin/projects/ProjectForm';
+import AlumniForm from '../../../components/admin/alumni/AlumniForm';
 import { ToastContainer, useToast } from '../../../components/admin/Toast';
-import { getProjects, deleteProject, type Project } from '../../../lib/projects';
+import {
+  getAlumni,
+  deleteAlumni,
+  type Alumni,
+} from '../../../lib/alumni';
+
+/** Format as "Name 'YY" (e.g. "Jane Doe '25") */
+function formatNameWithYear(name: string | null, graduationYear: string | null): string {
+  const n = (name ?? '').trim() || '—';
+  const year = (graduationYear ?? '').trim();
+  if (!year) return n;
+  const yy = year.length >= 2 ? year.slice(-2) : year;
+  return `${n} '${yy}`;
+}
 
 const COLUMNS = [
-  { key: 'title', label: 'Title' },
-  { key: '_semester', label: 'Semester' },
-  { key: '_tags', label: 'Tags' },
+  {
+    key: '_nameWithYear',
+    label: 'Name',
+    render: (row: Record<string, unknown>) =>
+      formatNameWithYear(row.name as string | null, row.graduation_year as string | null),
+  },
+  { key: 'graduation_year', label: 'Graduation Year' },
 ];
 
-export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function AlumniPage() {
+  const [alumni, setAlumni] = useState<Alumni[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Project | null>(null);
+  const [editing, setEditing] = useState<Alumni | null>(null);
   const { toasts, addToast, dismissToast } = useToast();
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      setProjects(await getProjects());
+      setAlumni(await getAlumni());
     } catch (e: unknown) {
       addToast((e as Error).message, 'error');
     } finally {
@@ -30,7 +47,9 @@ export default function ProjectsPage() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   function openCreate() {
     setEditing(null);
@@ -38,15 +57,15 @@ export default function ProjectsPage() {
   }
 
   function openEdit(id: string) {
-    const project = projects.find(p => p.id === id) ?? null;
-    setEditing(project);
+    const a = alumni.find(x => x.id === id) ?? null;
+    setEditing(a);
     setFormOpen(true);
   }
 
   async function handleDelete(id: string) {
     try {
-      await deleteProject(id);
-      addToast('Project deleted.', 'success');
+      await deleteAlumni(id);
+      addToast('Alumni deleted.', 'success');
       load();
     } catch (e: unknown) {
       addToast((e as Error).message, 'error');
@@ -55,37 +74,33 @@ export default function ProjectsPage() {
 
   function handleSaved() {
     setFormOpen(false);
-    addToast(editing ? 'Project updated.' : 'Project created.', 'success');
+    addToast(editing ? 'Alumni updated.' : 'Alumni created.', 'success');
     load();
   }
-
-  const rows = projects.map(p => ({
-    ...p,
-    _semester: p.semester ?? '—',
-    _tags: p.tags?.join(', ') ?? '',
-  }));
 
   return (
     <>
       <div style={s.header}>
-        <h1 style={s.heading}>Projects</h1>
-        <button style={s.addBtn} onClick={openCreate}>+ Add Project</button>
+        <h1 style={s.heading}>Alumni</h1>
+        <button style={s.addBtn} onClick={openCreate}>
+          + Add Alumni
+        </button>
       </div>
 
       {loading ? (
-        <TableSkeleton rows={5} cols={3} />
+        <TableSkeleton rows={5} cols={2} />
       ) : (
         <AdminTable
           columns={COLUMNS}
-          rows={rows}
+          rows={alumni}
           onEdit={openEdit}
           onDelete={handleDelete}
         />
       )}
 
       {formOpen && (
-        <ProjectForm
-          project={editing}
+        <AlumniForm
+          alumni={editing}
           onSaved={handleSaved}
           onClose={() => setFormOpen(false)}
           onError={msg => addToast(msg, 'error')}
@@ -97,7 +112,7 @@ export default function ProjectsPage() {
   );
 }
 
-ProjectsPage.getLayout = (page: React.ReactElement) => (
+AlumniPage.getLayout = (page: React.ReactElement) => (
   <AdminLayout>{page}</AdminLayout>
 );
 

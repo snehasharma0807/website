@@ -8,8 +8,24 @@
     "strict": false,
     "skipLibCheck": true,
     "outDir": ".ts-out",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
   },
-  "include": ["lib", "tests"],
-  "exclude": ["node_modules"]
+  "include": [
+    "lib",
+    "tests"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

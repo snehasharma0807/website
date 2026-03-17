@@ -4,8 +4,8 @@ import Head from '../../components/head';
 import GradientBanner from '../../components/gradientBanner';
 import ProjectList from '../../components/projects/projectList';
 import ProjectExplore from '../../components/projects/projectExplore';
-import fetchContent from '../../utils/fetchContent';
 import ActionButton from '../../components/actionButton';
+import { getActiveProjects } from '../../lib/dataPublic';
 
 function Projects({ projects }) {
   return (
@@ -23,16 +23,6 @@ function Projects({ projects }) {
                 continue to be used for years to come. ">
         <ActionButton link="https://github.com/hack4impact-upenn">See our GitHub</ActionButton>
       </GradientBanner>
-      <div style={{ textAlign: 'center', paddingRight: '5px' }}>
-        <h2>Section Under Construction</h2>
-        <p>
-          We are in the process of transfer all of our projects to our new site. A complete list of
-          previous projects can be found{' '}
-          <a href="https://www.notion.so/h4i/986a3351cdca44cd85e10dd4452953f5?v=6420ae90233148dfaf6f8570e680e4e5">
-            here
-          </a>
-        </p>
-      </div>
       <ProjectList projects={projects} />
       <ProjectExplore />
     </div>
@@ -41,31 +31,26 @@ function Projects({ projects }) {
 
 export default Projects;
 
-export async function getStaticProps() {
-  const data = await fetchContent(`
-  {
-    pennWebsiteLayout(id: "${process.env.LAYOUT_ENTRY_ID}") {
-      projectsCollection {
-        items {
-          title
-          description {
-            json
-          }
-          thumbnail {
-            url
-            description
-          }
-          urlSlug
-          completedIn
-        }
-      }
-    }
+export async function getServerSideProps() {
+  try {
+    const rows = await getActiveProjects();
+    const projects = rows.map((p) => {
+      const year = p.created_at ? new Date(p.created_at).getFullYear() : new Date().getFullYear();
+      const semester = (p.semester && String(p.semester).trim()) || `Year ${year}`;
+      return {
+        title: p.title ?? '',
+        description: p.description ?? '',
+        thumbnail: {
+          url: p.image_url ?? '',
+          description: p.title ?? '',
+        },
+        urlSlug: p.id,
+        completedIn: semester,
+      };
+    });
+    return { props: { projects } };
+  } catch (e) {
+    console.error('[projects] getServerSideProps', e);
+    return { props: { projects: [] } };
   }
-  `);
-
-  return {
-    props: {
-      projects: data?.pennWebsiteLayout?.projectsCollection?.items?.filter((x) => !!x) ?? [],
-    },
-  };
 }

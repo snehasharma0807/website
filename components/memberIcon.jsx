@@ -7,7 +7,11 @@ const TeamMemberIcon = ({ name, title, image, memberSlug, linkedIn }) => {
       <Card className="border-0 member-icon">
         <div className="text-center">
           <a href={memberSlug}>
-            <img src={image.url} alt={name} className="rounded-circle img-fluid team-icon" />
+            {image?.url ? (
+              <img src={image.url} alt={name} className="rounded-circle img-fluid team-icon" />
+            ) : (
+              <div className="rounded-circle team-icon team-icon-placeholder" style={{ background: '#e0e0e0', aspectRatio: '1', margin: '0 auto' }} />
+            )}
           </a>
         </div>
       </Card>

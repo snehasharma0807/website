@@ -2,27 +2,52 @@ import React, { useCallback, useEffect, useState } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import AdminTable from '../../../components/admin/AdminTable';
 import TableSkeleton from '../../../components/admin/TableSkeleton';
-import ProjectForm from '../../../components/admin/projects/ProjectForm';
+import MemberForm from '../../../components/admin/members/MemberForm';
 import { ToastContainer, useToast } from '../../../components/admin/Toast';
-import { getProjects, deleteProject, type Project } from '../../../lib/projects';
+import {
+  getMembers,
+  deleteMember,
+  type Member,
+} from '../../../lib/members';
 
 const COLUMNS = [
-  { key: 'title', label: 'Title' },
-  { key: '_semester', label: 'Semester' },
-  { key: '_tags', label: 'Tags' },
+  {
+    key: 'photo_url',
+    label: 'Photo',
+    render: (row: Record<string, unknown>) => {
+      const url = row.photo_url as string | null | undefined;
+      if (!url) return <span style={{ color: '#657788' }}>—</span>;
+      return (
+        <img
+          src={url}
+          alt=""
+          style={{
+            width: 40,
+            height: 40,
+            objectFit: 'cover',
+            borderRadius: 4,
+            border: '1px solid #243547',
+          }}
+        />
+      );
+    },
+  },
+  { key: 'name', label: 'Name' },
+  { key: 'role', label: 'Role' },
+  { key: 'graduation_year', label: 'Graduation Year' },
 ];
 
-export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function MembersPage() {
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState<Project | null>(null);
+  const [editing, setEditing] = useState<Member | null>(null);
   const { toasts, addToast, dismissToast } = useToast();
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      setProjects(await getProjects());
+      setMembers(await getMembers());
     } catch (e: unknown) {
       addToast((e as Error).message, 'error');
     } finally {
@@ -30,7 +55,9 @@ export default function ProjectsPage() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   function openCreate() {
     setEditing(null);
@@ -38,15 +65,15 @@ export default function ProjectsPage() {
   }
 
   function openEdit(id: string) {
-    const project = projects.find(p => p.id === id) ?? null;
-    setEditing(project);
+    const member = members.find(m => m.id === id) ?? null;
+    setEditing(member);
     setFormOpen(true);
   }
 
   async function handleDelete(id: string) {
     try {
-      await deleteProject(id);
-      addToast('Project deleted.', 'success');
+      await deleteMember(id);
+      addToast('Member deleted.', 'success');
       load();
     } catch (e: unknown) {
       addToast((e as Error).message, 'error');
@@ -55,37 +82,33 @@ export default function ProjectsPage() {
 
   function handleSaved() {
     setFormOpen(false);
-    addToast(editing ? 'Project updated.' : 'Project created.', 'success');
+    addToast(editing ? 'Member updated.' : 'Member created.', 'success');
     load();
   }
-
-  const rows = projects.map(p => ({
-    ...p,
-    _semester: p.semester ?? '—',
-    _tags: p.tags?.join(', ') ?? '',
-  }));
 
   return (
     <>
       <div style={s.header}>
-        <h1 style={s.heading}>Projects</h1>
-        <button style={s.addBtn} onClick={openCreate}>+ Add Project</button>
+        <h1 style={s.heading}>Members</h1>
+        <button style={s.addBtn} onClick={openCreate}>
+          + Add Member
+        </button>
       </div>
 
       {loading ? (
-        <TableSkeleton rows={5} cols={3} />
+        <TableSkeleton rows={5} cols={4} />
       ) : (
         <AdminTable
           columns={COLUMNS}
-          rows={rows}
+          rows={members}
           onEdit={openEdit}
           onDelete={handleDelete}
         />
       )}
 
       {formOpen && (
-        <ProjectForm
-          project={editing}
+        <MemberForm
+          member={editing}
           onSaved={handleSaved}
           onClose={() => setFormOpen(false)}
           onError={msg => addToast(msg, 'error')}
@@ -97,7 +120,7 @@ export default function ProjectsPage() {
   );
 }
 
-ProjectsPage.getLayout = (page: React.ReactElement) => (
+MembersPage.getLayout = (page: React.ReactElement) => (
   <AdminLayout>{page}</AdminLayout>
 );
 

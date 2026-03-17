@@ -6,15 +6,7 @@ import ProjectContainer from '../homePageProject';
 import ActionLink from '../actionLink';
 
 function OurWorkSection({ projects }) {
-  const projectContainers = projects.map(({ title, description, thumbnail, urlSlug }) => (
-    <ProjectContainer
-      title={title}
-      description={description}
-      thumbnail={thumbnail}
-      urlSlug={urlSlug}
-      key={urlSlug}
-    />
-  ));
+  const projectList = Array.isArray(projects) ? projects : [];
 
   return (
     <Section>
@@ -38,25 +30,36 @@ function OurWorkSection({ projects }) {
 
         <div className="project-showcase-box">
           <Row className="d-flex justify-content-center">
-            <Trail
-              items={projectContainers}
-              keys={({ urlSlug }) => urlSlug}
-              config={{ delay: 1200 }}
-              from={{ opacity: 0, transform: 'translate3d(0,200px,0)' }}
-              to={{ opacity: 100, transform: 'translate3d(0,0px,0)' }}>
-              {/* eslint-disable react/display-name */}
-              {(item) => (props) => (
-                <Col key={item.key} sm="4" style={props}>
-                  {item}
-                </Col>
-              )}
-              {/* eslint-enable react/display-name */}
-            </Trail>
+            {projectList.length > 0 ? (
+              <Trail
+                items={projectList}
+                keys={(p) => p.urlSlug ?? p.title ?? String(Math.random())}
+                config={{ delay: 1200 }}
+                from={{ opacity: 0, transform: 'translate3d(0,200px,0)' }}
+                to={{ opacity: 100, transform: 'translate3d(0,0px,0)' }}>
+                {(project) => (props) => (
+                  <Col key={project.urlSlug ?? project.title} sm="4" style={props}>
+                    <ProjectContainer
+                      title={project.title}
+                      description={project.description}
+                      thumbnail={project.thumbnail}
+                      urlSlug={project.urlSlug}
+                    />
+                  </Col>
+                )}
+              </Trail>
+            ) : (
+              <Col className="text-center text-muted py-4">
+                No projects to show yet. Check back soon.
+              </Col>
+            )}
           </Row>
         </div>
-        <Row style={{ paddingTop: '5px' }}>
-          <ActionLink text="View our other projects" link="/projects" />
-        </Row>
+        {projectList.length > 0 && (
+          <Row style={{ paddingTop: '5px' }}>
+            <ActionLink text="View our other projects" link="/projects" />
+          </Row>
+        )}
       </Container>
       <style jsx>{`
         .subtitle {

@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import ConfirmModal from './ConfirmModal';
 
 export interface Column {
   key: string;
   label: string;
+  /** Optional custom cell renderer (e.g. for thumbnails). */
+  render?: (row: Record<string, unknown>) => React.ReactNode;
 }
 
 interface Props {
@@ -56,7 +59,7 @@ export default function AdminTable({ columns, rows, onEdit, onDelete }: Props) {
                   <tr key={id} style={s.tr}>
                     {columns.map(col => (
                       <td key={col.key} style={s.td}>
-                        {String(row[col.key] ?? '')}
+                        {col.render ? col.render(row) : String(row[col.key] ?? '')}
                       </td>
                     ))}
                     <td style={s.td}>
@@ -85,18 +88,14 @@ export default function AdminTable({ columns, rows, onEdit, onDelete }: Props) {
         </table>
       </div>
 
-      {/* Confirmation modal */}
-      {pendingDeleteId && (
-        <div style={s.overlay} role="dialog" aria-modal="true" aria-label="Confirm delete">
-          <div style={s.modal}>
-            <p style={s.modalText}>Are you sure you want to delete this record? This cannot be undone.</p>
-            <div style={s.modalActions}>
-              <button style={s.cancelBtn} onClick={cancelDelete}>Cancel</button>
-              <button style={s.confirmBtn} onClick={confirmDelete}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={!!pendingDeleteId}
+        message="Are you sure you want to delete this record? This cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        danger
+      />
     </>
   );
 }
@@ -162,49 +161,6 @@ const s: Record<string, React.CSSProperties> = {
     borderRadius: 4,
     padding: '0.3rem 0.7rem',
     fontSize: '0.8rem',
-    cursor: 'pointer',
-  },
-  overlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.65)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-  },
-  modal: {
-    background: '#1f2d3d',
-    border: '1px solid #243547',
-    borderRadius: 8,
-    padding: '2rem',
-    maxWidth: 400,
-    width: '90%',
-  },
-  modalText: {
-    color: '#e8eaf0',
-    marginBottom: '1.5rem',
-    lineHeight: 1.5,
-  },
-  modalActions: {
-    display: 'flex',
-    gap: '0.75rem',
-    justifyContent: 'flex-end',
-  },
-  cancelBtn: {
-    background: 'transparent',
-    border: '1px solid #657788',
-    color: '#9aafc0',
-    borderRadius: 4,
-    padding: '0.5rem 1rem',
-    cursor: 'pointer',
-  },
-  confirmBtn: {
-    background: '#f2594b',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 4,
-    padding: '0.5rem 1rem',
     cursor: 'pointer',
   },
 };

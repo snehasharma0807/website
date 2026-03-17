@@ -5,9 +5,29 @@ const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
+export interface ProjectFeature {
+  header: string;
+  body: string;
+  image_url: string;
+}
+
+export interface ProjectTeamMember {
+  name: string;
+  title: string;
+  image_url: string;
+  linkedin: string;
+  role: 'lead' | 'developer';
+}
+
+export interface ProjectTestimonial {
+  author: string;
+  quote: string;
+}
+
 export interface Project {
   id: string;
   title: string | null;
+  title_abbrev: string | null;
   description: string | null;
   image_url: string | null;
   github_link: string | null;
@@ -15,6 +35,13 @@ export interface Project {
   dev_team: string | null;
   tags: string[] | null;
   status: 'active' | 'archived' | null;
+  semester: string | null;
+  about_project: string | null;
+  about_client: string | null;
+  impact: string | null;
+  features: ProjectFeature[] | null;
+  team_members: ProjectTeamMember[] | null;
+  testimonials: ProjectTestimonial[] | null;
   created_at: string | null;
 }
 

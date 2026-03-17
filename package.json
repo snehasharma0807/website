@@ -9,7 +9,10 @@
     "format": "prettier --write \"**/*.{js,jsx,css}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,css}\"",
     "lint": "eslint \"./**/*.{js,jsx}\"",
-    "lint:fix": "eslint --fix \"./**/*.{js,jsx}\""
+    "lint:fix": "eslint --fix \"./**/*.{js,jsx}\"",
+    "test:members": "ts-node --transpile-only tests/members.test.ts",
+    "test:sponsors-alumni": "ts-node --transpile-only tests/sponsors-alumni.test.ts",
+    "test:integration": "ts-node --transpile-only tests/integration.test.ts"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.15.0",
@@ -31,12 +34,13 @@
   "devDependencies": {
     "@contentful/rich-text-html-renderer": "^14.1.2",
     "@hack4impact-uiuc/eslint-plugin": "2.0.3",
+    "@types/react": "19.2.14",
     "babel-plugin-inline-react-svg": "^1.0.1",
     "eslint": "^7.6.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-prettier": "^3.3.1",
     "prettier": "^2.1.2",
     "sass": "^1.86.0",
-    "styled-jsx-plugin-sass": "^1.0.0"
+    "ts-node": "^10.9.2"
   }
 }
